@@ -2,6 +2,7 @@ package io.github.luizfw.quarkussocial.rest;
 
 
 import io.github.luizfw.quarkussocial.domain.model.User;
+import io.github.luizfw.quarkussocial.domain.repository.UserRepository;
 import io.github.luizfw.quarkussocial.rest.dto.CreateUserRequest;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import jakarta.transaction.Transactional;
@@ -16,6 +17,12 @@ import java.util.Objects;
 @Produces(MediaType.APPLICATION_JSON)
 public class UserResource {
 
+    private final UserRepository userRepository;
+
+    public UserResource(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @POST
     @Transactional
     public Response createUser(final CreateUserRequest userRequest) {
@@ -23,14 +30,14 @@ public class UserResource {
         user.setName(userRequest.getName());
         user.setAge(userRequest.getAge());
 
-        user.persist();
+        userRepository.persist(user);
 
         return Response.ok(user).build();
     }
 
     @GET
     public Response listAll() {
-        PanacheQuery<User> query = User.findAll();
+        PanacheQuery<User> query = userRepository.findAll();
         return Response
                 .ok(query.list())
                 .build();
@@ -40,10 +47,10 @@ public class UserResource {
     @Path("{id}")
     @Transactional
     public Response deleteUser(@PathParam("id") Long id) {
-        User user = User.findById(id);
+        User user = userRepository.findById(id);
 
         if (Objects.nonNull(user)) {
-            user.delete();
+            userRepository.delete(user);
             return Response
                     .ok().build();
         }
@@ -56,7 +63,7 @@ public class UserResource {
     @Path("{id}")
     @Transactional
     public Response updateUser(@PathParam("id") Long id, CreateUserRequest userData) {
-        User user = User.findById(id);
+        User user = userRepository.findById(id);
 
         if (Objects.nonNull(user)) {
             user.setName(userData.getName());
