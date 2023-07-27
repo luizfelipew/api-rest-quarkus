@@ -6,11 +6,14 @@ import io.github.luizfw.quarkussocial.domain.repository.UserRepository;
 import io.github.luizfw.quarkussocial.rest.dto.CreateUserRequest;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.Objects;
+import java.util.Set;
 
 @Path("/users")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -19,13 +22,27 @@ public class UserResource {
 
     private final UserRepository userRepository;
 
-    public UserResource(UserRepository userRepository) {
+    private final Validator validator;
+
+    public UserResource(UserRepository userRepository, Validator validator) {
         this.userRepository = userRepository;
+        this.validator = validator;
     }
 
     @POST
     @Transactional
     public Response createUser(final CreateUserRequest userRequest) {
+
+        Set<ConstraintViolation<CreateUserRequest>> violations = validator.validate(userRequest);
+
+        if (!violations.isEmpty()) {
+            ConstraintViolation<CreateUserRequest> error = violations.stream().findAny().get();
+            String errorMessage = error.getMessage();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(errorMessage)
+                    .build();
+        }
+
         User user = new User();
         user.setName(userRequest.getName());
         user.setAge(userRequest.getAge());
