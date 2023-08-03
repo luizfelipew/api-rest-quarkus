@@ -4,6 +4,7 @@ package io.github.luizfw.quarkussocial.rest;
 import io.github.luizfw.quarkussocial.domain.model.User;
 import io.github.luizfw.quarkussocial.domain.repository.UserRepository;
 import io.github.luizfw.quarkussocial.rest.dto.CreateUserRequest;
+import io.github.luizfw.quarkussocial.rest.dto.ResponseError;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
@@ -36,10 +37,9 @@ public class UserResource {
         Set<ConstraintViolation<CreateUserRequest>> violations = validator.validate(userRequest);
 
         if (!violations.isEmpty()) {
-            ConstraintViolation<CreateUserRequest> error = violations.stream().findAny().get();
-            String errorMessage = error.getMessage();
+            ResponseError responseError = ResponseError.createFromValidation(violations);
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(errorMessage)
+                    .entity(responseError)
                     .build();
         }
 
