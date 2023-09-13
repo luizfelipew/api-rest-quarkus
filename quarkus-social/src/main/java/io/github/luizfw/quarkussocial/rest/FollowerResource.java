@@ -1,11 +1,11 @@
 package io.github.luizfw.quarkussocial.rest;
 
 import io.github.luizfw.quarkussocial.domain.model.Follower;
-import io.github.luizfw.quarkussocial.domain.model.User;
 import io.github.luizfw.quarkussocial.domain.repository.FollowerRepository;
 import io.github.luizfw.quarkussocial.domain.repository.UserRepository;
 import io.github.luizfw.quarkussocial.rest.dto.FollowerRequest;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -35,6 +35,7 @@ public class FollowerResource {
 
 
     @PUT
+    @Transactional
     public Response followUser(@PathParam("userId") Long userId, FollowerRequest request) {
 
         val user = userRepository.findById(userId);
@@ -46,11 +47,17 @@ public class FollowerResource {
 
         val follower = userRepository.findById(request.getFollowerId());
 
-        val entity = new Follower();
-        entity.setUser(user);
-        entity.setFollower(follower);
+        boolean follows = followerRepository.follows(follower, user);
 
-        followerRepository.persist(entity);
+        if (!follows) {
+            val entity = new Follower();
+            entity.setUser(user);
+            entity.setFollower(follower);
+
+            followerRepository.persist(entity);
+        }
+
+
 
         return Response
                 .status(Response.Status.NO_CONTENT)
