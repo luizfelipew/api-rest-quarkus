@@ -38,6 +38,13 @@ public class FollowerResource {
     @Transactional
     public Response followUser(@PathParam("userId") Long userId, FollowerRequest request) {
 
+        if (userId.equals(request.getFollowerId())) {
+            return Response
+                    .status(Response.Status.CONFLICT)
+                    .entity("You can't follow yourself")
+                    .build();
+        }
+
         val user = userRepository.findById(userId);
         if (Objects.isNull(user)){
             return Response
