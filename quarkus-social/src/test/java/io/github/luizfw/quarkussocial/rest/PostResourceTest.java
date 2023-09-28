@@ -9,6 +9,7 @@ import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.transaction.Transactional;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -84,19 +85,45 @@ class PostResourceTest {
     @Test
     @DisplayName("should return 404 when user doesn't exist")
     void listPostUserNotFoundTest() {
+        var inexistentUserId = 999;
+
+        given()
+                .contentType(ContentType.JSON)
+                .pathParam("userId", inexistentUserId)
+                .when()
+                .get()
+                .then()
+                .statusCode(404);
 
     }
 
     @Test
     @DisplayName("should return 400 when followerId header is not present")
     void listPostFollowerHeaderNotSendTest() {
-
+        given()
+                .contentType(ContentType.JSON)
+                .pathParam("userId", userId)
+                .when()
+                .get()
+                .then()
+                .statusCode(400)
+                .body(Matchers.is("You forgot the header followerId"));
     }
 
     @Test
     @DisplayName("should return 400 when follower doesn't exist")
     void listPostFollowerNotFoundTest() {
+        var inexistentFollowerId = 999;
 
+        given()
+                .contentType(ContentType.JSON)
+                .pathParam("userId", userId)
+                .header("followerId", inexistentFollowerId)
+                .when()
+                .get()
+                .then()
+                .statusCode(400)
+                .body(Matchers.is("FollowerId doesn't exist"));
     }
 
     @Test
