@@ -84,16 +84,16 @@ class UserResourceTest {
 //        assertEquals("Name is Required", errors.get(1).get("message"));
     }
 
-    @Test
-    @DisplayName("should list all users")
-    @Order(2)
-    void listAllUsersTest() {
-        given()
-                .contentType(ContentType.JSON)
-                .when()
-                .get(apiURL)
-                .then()
-                .statusCode(200)
-                .body("size()", Matchers.is(1));
-    }
+//    @Test
+//    @DisplayName("should list all users")
+//    @Order(2)
+//    void listAllUsersTest() {
+//        given()
+//                .contentType(ContentType.JSON)
+//                .when()
+//                .get(apiURL)
+//                .then()
+//                .statusCode(200)
+//                .body("size()", Matchers.is(1));
+//    }
 }

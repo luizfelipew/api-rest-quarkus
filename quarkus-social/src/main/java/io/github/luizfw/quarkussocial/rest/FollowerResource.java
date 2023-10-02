@@ -20,7 +20,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.val;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
