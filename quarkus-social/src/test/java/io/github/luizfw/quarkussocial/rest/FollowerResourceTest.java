@@ -25,16 +25,22 @@ class FollowerResourceTest {
     UserRepository userRepository;
 
     Long userId;
+    Long followerId;
 
     @BeforeEach
     @Transactional
     void setUp() {
-        // usuário padrão dos testes
         var user = new User();
         user.setAge(30);
         user.setName("Fulano");
         userRepository.persist(user);
         userId = user.getId();
+
+        var follower = new User();
+        follower.setAge(31);
+        follower.setName("Cicrano");
+        userRepository.persist(follower);
+        followerId = follower.getId();
     }
 
     @Test
@@ -80,5 +86,26 @@ class FollowerResourceTest {
                 .put()
                 .then()
                 .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("should follow a user")
+    void followUserTest() {
+
+        var body = new FollowerRequest();
+        body.setFollowerId(followerId);
+
+        var jsonRequest = JsonbBuilder
+                .create()
+                .toJson(body);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(jsonRequest)
+                .pathParam("userId", userId)
+                .when()
+                .put()
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
     }
 }
